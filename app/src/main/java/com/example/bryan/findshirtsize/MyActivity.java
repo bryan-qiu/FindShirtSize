@@ -2,10 +2,13 @@ package com.example.bryan.findshirtsize;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.CursorLoader;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,12 +16,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
 import java.io.File;
+import java.io.FileNotFoundException;
+
+import cz.msebera.android.httpclient.Header;
 
 public class MyActivity extends AppCompatActivity {
 
@@ -27,6 +37,10 @@ public class MyActivity extends AppCompatActivity {
     private Uri imageUri;
     public final static String EXTRA_MESSAGE = "com.example.bryan.findshirtsize.MESSAGE";
 
+    private static final String BASE_URL = "http://192.168.56.1/AndroidFileUpload/fileUpload.php";
+    private AsyncHttpClient mClient;
+    private AsyncHttpResponseHandler mResponseHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +48,88 @@ public class MyActivity extends AppCompatActivity {
 
         Button cameraButton = (Button)findViewById(R.id.button_camera);
         cameraButton.setOnClickListener(cameraListener);
+
+        mClient = new AsyncHttpClient();
+        mResponseHandler = new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Toast.makeText(MyActivity.this, "YAYYY", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                Toast.makeText(MyActivity.this, "DIDN'T WORK :(", Toast.LENGTH_SHORT).show();
+            }
+        };
+    }
+
+    private void uploadImage() {
+        File file = new File(getImageRealPathFromUri(imageUri));
+        RequestParams params = new RequestParams();
+
+        try {
+            params.put("file", file, getMimeType(file.getAbsolutePath()));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        mClient.post(BASE_URL, params, mResponseHandler);
+    }
+
+    public String getImageRealPathFromUri(Uri uri) {
+        String filePath = "";
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            return getImageRealPathFromUriCompat(uri);
+        } else {
+            String wholeID = DocumentsContract.getDocumentId(uri);
+
+            // Split at colon, use second item in the array
+            String id = wholeID.split(":")[1];
+
+            String[] column = {MediaStore.Images.Media.DATA};
+
+            // where id is equal to
+            String sel = MediaStore.Images.Media._ID + "=?";
+
+            Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    column, sel, new String[]{id}, null);
+
+            int columnIndex = cursor.getColumnIndex(column[0]);
+
+            if (cursor.moveToFirst()) {
+                filePath = cursor.getString(columnIndex);
+            }
+            cursor.close();
+            return filePath;
+        }
+    }
+
+    // And to convert the image URI to the direct file system path of the image file
+    public String getImageRealPathFromUriCompat(Uri contentUri) {
+        String[] proj = {MediaStore.Images.Media.DATA};
+        String result = null;
+
+        CursorLoader cursorLoader = new CursorLoader(
+                this,
+                contentUri, proj, null, null, null);
+        Cursor cursor = cursorLoader.loadInBackground();
+
+        if (cursor != null) {
+            int column_index =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            result = cursor.getString(column_index);
+        }
+        return result;
+    }
+
+    public static String getMimeType(String url) {
+        String type = null;
+        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+        return type;
     }
 
     private View.OnClickListener cameraListener = new View.OnClickListener() {
@@ -62,14 +158,14 @@ public class MyActivity extends AppCompatActivity {
 
             ImageView imageView = (ImageView)findViewById(R.id.image_camera);
             ContentResolver cr = getContentResolver();
-
-            Bitmap bitmap;
+            imageUri = intent.getData();
 
             try {
-                /*bitmap = MediaStore.Images.Media.getBitmap(cr, imageUri);
-                imageView.setImageBitmap(bitmap);
-                Toast.makeText(MyActivity.this, selectedImage.toString(), Toast.LENGTH_LONG).show();*/
-                sendMessage("hi");
+//                mBitmap = MediaStore.Images.Media.getBitmap(cr, imageUri);
+                uploadImage();
+//                imageView.setImageBitmap(bitmap);
+//                Toast.makeText(MyActivity.this, selectedImage.toString(), Toast.LENGTH_LONG).show();
+//                sendMessage("hi");
             } catch(Exception e) {
                 Log.e(logtag, e.toString());
             }
