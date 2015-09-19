@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ public class MyActivity extends AppCompatActivity {
     private static String logtag = "App";
     private static int TAKE_PICTURE = 1;
     private Uri imageUri;
+    public final static String EXTRA_MESSAGE = "com.example.bryan.findshirtsize.MESSAGE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,14 +66,26 @@ public class MyActivity extends AppCompatActivity {
             Bitmap bitmap;
 
             try {
-                bitmap = MediaStore.Images.Media.getBitmap(cr, imageUri);
+                /*bitmap = MediaStore.Images.Media.getBitmap(cr, imageUri);
                 imageView.setImageBitmap(bitmap);
-                Toast.makeText(MyActivity.this, selectedImage.toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MyActivity.this, selectedImage.toString(), Toast.LENGTH_LONG).show();*/
+                sendMessage("hi");
             } catch(Exception e) {
                 Log.e(logtag, e.toString());
             }
         }
     }
+
+    public void sendMessage(String s) {
+        Intent intent = new Intent(this, ResultActivity.class);
+        String message = s;
+        intent.putExtra(EXTRA_MESSAGE, message);
+        startActivity(intent);
+    }
+
+
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
