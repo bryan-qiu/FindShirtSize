@@ -4,7 +4,9 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
-    <string name="button_camera">Camera</string>
+    <string name="button_camera">Take a Pic</string>
+    <string name="button_input">Input</string>
     <string name="image_cd_camera">Description Here</string>
     <string name="title_activity_result">ResultActivity</string>
+    <string name="title_activity_input">InputActivity</string>
 </resources>

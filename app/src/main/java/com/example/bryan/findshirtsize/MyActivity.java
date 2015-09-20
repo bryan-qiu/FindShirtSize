@@ -147,6 +147,11 @@ public class MyActivity extends AppCompatActivity {
         startActivityForResult(intent,TAKE_PICTURE);
     }
 
+    public void inputValues(View v) {
+        Intent intent = new Intent(this, InputActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     // override what happens when we use the camera
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
