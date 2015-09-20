@@ -3,12 +3,17 @@ package com.example.bryan.findshirtsize;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.List;
 
 public class ResultActivity extends AppCompatActivity {
 
+    DatabaseAdapter db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,6 +27,15 @@ public class ResultActivity extends AppCompatActivity {
 
         // Set the text view as the activity layout
         setContentView(textView);
+        db = new DatabaseAdapter(this);
+        db.createShirt(38,"American Eagle","L");
+
+
+        List<String> s = db.searchShirts(38);
+        for (int i = 0; i < s.size(); i++) {
+            Log.i("Database", "Loop through search results: " + s.get(i));
+            //Toast.makeText(ResultActivity.this,s.get(i),Toast.LENGTH_LONG);
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.example.bryan.findshirtsize;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.CursorLoader;
@@ -105,12 +106,12 @@ public class MyActivity extends AppCompatActivity {
     }
 
     // And to convert the image URI to the direct file system path of the image file
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public String getImageRealPathFromUriCompat(Uri contentUri) {
         String[] proj = {MediaStore.Images.Media.DATA};
         String result = null;
 
-        CursorLoader cursorLoader = new CursorLoader(
-                this,
+        CursorLoader cursorLoader = new CursorLoader(this,
                 contentUri, proj, null, null, null);
         Cursor cursor = cursorLoader.loadInBackground();
 
@@ -158,14 +159,14 @@ public class MyActivity extends AppCompatActivity {
 
             ImageView imageView = (ImageView)findViewById(R.id.image_camera);
             ContentResolver cr = getContentResolver();
-            imageUri = intent.getData();
+            //imageUri = intent.getData();
 
             try {
 //                mBitmap = MediaStore.Images.Media.getBitmap(cr, imageUri);
-                uploadImage();
+                //uploadImage();
 //                imageView.setImageBitmap(bitmap);
 //                Toast.makeText(MyActivity.this, selectedImage.toString(), Toast.LENGTH_LONG).show();
-//                sendMessage("hi");
+                sendMessage("hi");
             } catch(Exception e) {
                 Log.e(logtag, e.toString());
             }
@@ -178,10 +179,6 @@ public class MyActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
     }
-
-
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
