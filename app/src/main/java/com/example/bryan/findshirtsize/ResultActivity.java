@@ -19,11 +19,18 @@ public class ResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_result);
         Intent intent = getIntent();
-        String message = intent.getStringExtra(MyActivity.EXTRA_MESSAGE);
+        //String message = intent.getStringExtra(MyActivity.EXTRA_MESSAGE);
+
+        int chest_size = intent.getIntExtra(InputActivity.CHEST_SIZE,0);
+        int waist_size = intent.getIntExtra(InputActivity.WAIST_SIZE,0);
+        int hips_size = intent.getIntExtra(InputActivity.HIPS_SIZE,0);
+
+
         // Create the text view
         TextView textView = new TextView(this);
         textView.setTextSize(40);
-        textView.setText(message);
+        if (chest_size == 33)
+            textView.setText("hi");
 
         // Set the text view as the activity layout
         setContentView(textView);

@@ -171,11 +171,22 @@ public class MyActivity extends AppCompatActivity {
                 //uploadImage();
 //                imageView.setImageBitmap(bitmap);
 //                Toast.makeText(MyActivity.this, selectedImage.toString(), Toast.LENGTH_LONG).show();
-                sendMessage("hi");
+     //           sendMessage("hi");
+                //lol... supposed to somehow connect to michael's stuff... use static data for now
+                sendStatic();
             } catch(Exception e) {
                 Log.e(logtag, e.toString());
             }
         }
+    }
+
+    public void sendStatic() {
+        Intent intent = new Intent(this,ResultActivity.class);
+        intent.putExtra(InputActivity.CHEST_SIZE,33);
+        intent.putExtra(InputActivity.WAIST_SIZE,32);
+        intent.putExtra(InputActivity.HIPS_SIZE,33);
+
+        startActivity(intent);
     }
 
     public void sendMessage(String s) {
