@@ -1,24 +1,21 @@
 package com.example.bryan.findshirtsize;
 
-import android.app.Activity;
-import android.content.ContentResolver;
+import android.annotation.TargetApi;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
+import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -27,13 +24,12 @@ import com.loopj.android.http.RequestParams;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import cz.msebera.android.httpclient.Header;
 
 public class MyActivity extends AppCompatActivity {
-
-    private static String logtag = "App";
-    private static int TAKE_PICTURE = 1;
     private Uri imageUri;
     public final static String EXTRA_MESSAGE = "com.example.bryan.findshirtsize.MESSAGE";
 
@@ -46,7 +42,7 @@ public class MyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
 
-        Button cameraButton = (Button)findViewById(R.id.button_camera);
+        Button cameraButton = (Button) findViewById(R.id.button_camera);
         cameraButton.setOnClickListener(cameraListener);
 
         mClient = new AsyncHttpClient();
@@ -54,11 +50,13 @@ public class MyActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(MyActivity.this, "YAYYY", Toast.LENGTH_SHORT).show();
+                Log.e("hihihi", "IT WORKED");
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 Toast.makeText(MyActivity.this, "DIDN'T WORK :(", Toast.LENGTH_SHORT).show();
+                Log.e("hihihi", "IT WORKED jk");
             }
         };
     }
@@ -68,7 +66,7 @@ public class MyActivity extends AppCompatActivity {
         RequestParams params = new RequestParams();
 
         try {
-            params.put("file", file, getMimeType(file.getAbsolutePath()));
+            params.put("image", file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -105,6 +103,7 @@ public class MyActivity extends AppCompatActivity {
     }
 
     // And to convert the image URI to the direct file system path of the image file
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public String getImageRealPathFromUriCompat(Uri contentUri) {
         String[] proj = {MediaStore.Images.Media.DATA};
         String result = null;
@@ -139,49 +138,55 @@ public class MyActivity extends AppCompatActivity {
     };
 
     private void takePhoto(View v) {
-        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        File photo = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"pic.jpg"); //currently overrides file
-        imageUri = Uri.fromFile(photo);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri); // store camera output to where we put the file
-        startActivityForResult(intent,TAKE_PICTURE);
+        openImages();
+//        Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+//        imageUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE); // create a file to save the image
+//        i.putExtra(MediaStore.EXTRA_OUTPUT, imageUri); // set the image file name
+//        startActivityForResult(i, TAKE_PICTURE);
     }
 
     @Override
     // override what happens when we use the camera
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        // if user clicks the ok button
-        if (resultCode == Activity.RESULT_OK) {
-            Uri selectedImage = imageUri;
-            // notifies other applications of the content
-            getContentResolver().notifyChange(selectedImage, null);
-
-            ImageView imageView = (ImageView)findViewById(R.id.image_camera);
-            ContentResolver cr = getContentResolver();
-            imageUri = intent.getData();
-
+        InputStream stream = null;
+        if (requestCode == 1 && resultCode == RESULT_OK) {
             try {
-//                mBitmap = MediaStore.Images.Media.getBitmap(cr, imageUri);
+                stream = getContentResolver().openInputStream(intent.getData());
+                imageUri = intent.getData();
                 uploadImage();
-//                imageView.setImageBitmap(bitmap);
-//                Toast.makeText(MyActivity.this, selectedImage.toString(), Toast.LENGTH_LONG).show();
-//                sendMessage("hi");
-            } catch(Exception e) {
-                Log.e(logtag, e.toString());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                if (stream != null) {
+                    try {
+                        stream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }
 
-    public void sendMessage(String s) {
-        Intent intent = new Intent(this, ResultActivity.class);
-        String message = s;
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
+    private void openImages() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, 1);
     }
 
-
-
-
+    private void submitImage() {
+        File myFile = new File(getImageRealPathFromUri(imageUri));
+        RequestParams params = new RequestParams();
+        try {
+            params.put("file", myFile, getMimeType(myFile.getAbsolutePath()));
+            AsyncHttpClient client = new AsyncHttpClient();
+            client.post(BASE_URL, params, mResponseHandler);
+        } catch (FileNotFoundException e) {
+            Toast.makeText(this, "Sorry, " + myFile.getName() + " cannot be found.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
