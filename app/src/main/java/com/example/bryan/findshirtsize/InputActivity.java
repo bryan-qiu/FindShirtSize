@@ -25,13 +25,26 @@ public class InputActivity extends AppCompatActivity {
 
     public void sendData(View v) {
         EditText chest = (EditText) findViewById(R.id.chest_size);
-        int chest_size = Integer.parseInt(chest.getText().toString());
+        int chest_size = 0;
+
+        // doesn't work... fix it later
+        if (chest.getText().toString() != "") {
+            chest_size = Integer.parseInt(chest.getText().toString());
+        }
 
         EditText waist = (EditText) findViewById(R.id.waist_size);
-        int waist_size = Integer.parseInt(waist.getText().toString());
+        int waist_size = 0;
+
+        if (waist.getText().toString() != "") {
+            waist_size = Integer.parseInt(waist.getText().toString());
+        }
 
         EditText hips = (EditText) findViewById(R.id.hips_size);
-        int hips_size = Integer.parseInt(chest.getText().toString());
+        int hips_size = 0;
+
+        if (hips.getText().toString() != "") {
+            hips_size = Integer.parseInt(hips.getText().toString());
+        }
 
         Intent intent = new Intent(this,ResultActivity.class);
         intent.putExtra(CHEST_SIZE,chest_size);

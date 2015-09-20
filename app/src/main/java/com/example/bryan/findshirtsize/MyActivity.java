@@ -183,7 +183,7 @@ public class MyActivity extends AppCompatActivity {
     public void sendStatic() {
         Intent intent = new Intent(this,ResultActivity.class);
         intent.putExtra(InputActivity.CHEST_SIZE,33);
-        intent.putExtra(InputActivity.WAIST_SIZE,32);
+        intent.putExtra(InputActivity.WAIST_SIZE,27);
         intent.putExtra(InputActivity.HIPS_SIZE,33);
 
         startActivity(intent);

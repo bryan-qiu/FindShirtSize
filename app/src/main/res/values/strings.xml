@@ -15,4 +15,6 @@
     <string name="waist_hint">Waist Size (in.)</string>
     <string name="hips_hint">Hips Size (in.)</string>
     <string name="ok">Get Fitted</string>
+
+    <string name="your_true_fit">Your True Fit</string>
 </resources>
