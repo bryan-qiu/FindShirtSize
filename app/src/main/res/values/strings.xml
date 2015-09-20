@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FindShirtSize</string>
+    <string name="app_name">Fitted</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="input_measurements">Input Measurements</string>

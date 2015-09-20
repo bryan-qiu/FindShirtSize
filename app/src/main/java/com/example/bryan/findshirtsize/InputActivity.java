@@ -28,21 +28,21 @@ public class InputActivity extends AppCompatActivity {
         int chest_size = 0;
 
         // doesn't work... fix it later
-        if (chest.getText().toString() != "") {
+        if (!chest.getText().toString().matches("")) {
             chest_size = Integer.parseInt(chest.getText().toString());
         }
 
         EditText waist = (EditText) findViewById(R.id.waist_size);
         int waist_size = 0;
 
-        if (waist.getText().toString() != "") {
+        if (!waist.getText().toString().matches("")) {
             waist_size = Integer.parseInt(waist.getText().toString());
         }
 
         EditText hips = (EditText) findViewById(R.id.hips_size);
         int hips_size = 0;
 
-        if (hips.getText().toString() != "") {
+        if (!hips.getText().toString().matches("")) {
             hips_size = Integer.parseInt(hips.getText().toString());
         }
 
